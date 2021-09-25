@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./assets/css/main.css">
+
+</head>
+
+<body>
+
+
+    <form class="js-form">
+        <select name="salon_type">
+            <option value="Kuaför">Kuaför Salonu</option>
+            <option value="Berber">Berber Salonu</option>
+            <option value="Güzellik Salonu">Güzellik Salonu</option>
+            <option value="Estetik Merkezi">Estetik Merkezi</option>
+            <option value="Solaryum Merkezi">Solaryum Merkezi</option>
+            <option value="Makyaj ve Tırnak Stüdyosu">Makyaj ve Tırnak Stüdyosu</option>
+        </select>
+        <br>
+        <input data-rules="required" type="text" name="name">
+        <br>
+        <input data-rules="required|minlen[3]" type="text" name="phone">
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+
+
+
+    <script src="./assets/js/main.js" type="module"></script>
+</body>
+</html>
