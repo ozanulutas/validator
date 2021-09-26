@@ -1,3 +1,7 @@
 * {
     font-family: Arial, Helvetica, sans-serif;
 }
+
+.validator-error:empty {
+    display: none;
+}

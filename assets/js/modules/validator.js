@@ -2,7 +2,8 @@ class Validator {
 
   constructor(props) {
     this.formElements = [...document.querySelector(props.form)];
-    this.inject = props.inject ? props.inject : false;    
+    this.inject = props.inject ? props.inject : false;
+    this.onInput = props.onInput ? props.onInput : false;
 
     this.inputs = []; // Form içindeki data-rules'u belirtilmiş elemtler ve rule'ları
 
@@ -13,13 +14,22 @@ class Validator {
     this.messages = [];
 
     this.setInputs();
+
+    if(this.inject) {
+      this.renderErrorContainers();
+    }
+    if(this.onInput) {
+      this.validationOnInput();
+    }
+
   }
 
   // Form içindeki data-rules'u belirtilmiş elementleri alır
   setInputs() {
-    this.formElements.forEach(formItem => {
+    this.formElements.forEach((formItem, index) => {
       if(formItem.dataset.rules) {
         this.inputs.push({
+          inputId: index,
           element: formItem,
           rules: formItem.dataset.rules.split("|"),
           errors: [],
@@ -34,55 +44,73 @@ class Validator {
     let rules = [];
     this.nonValids = [];
     this.unsatisfiedRules = [];
-    console.log("nonValids1", this.nonValids);
+    console.log("this.inputs", this.inputs);
 
-    this.inputs.forEach((input, index) => {
+
+    this.inputs.forEach((input) => { // INP
+      input.errors = [];
       element = input.element;
       rules = input.rules;
 
-      rules.forEach((rule) => {
+      rules.forEach((rule) => {  // RULE
 
-        if(rule.includes("[")) { // eğer rule parametresi varsa (rule[param])
+        if(rule.includes("[")) {  // eğer rule parametresi varsa (rule[param])
           this.ruleParam = this.parseRuleParams(rule);
           rule = rule.slice(0, rule.indexOf("["));
         }
 
-        if(!this.mapRules(rule).method(element)) { // valid değilse
-          if(this.nonValids.indexOf(input) === -1) { // *** 
+        if(!this.mapRules(rule).method(element)) {  // valid değilse
+
+          if(input.errors.indexOf(this.mapRules(rule).message) === -1) {
+            input.errors.push(this.mapRules(rule).message);
+          }
+
+          if(this.nonValids.indexOf(input) === -1) {
             this.nonValids.push(input);
           }
-          this.nonValids[index].errors.push(this.mapRules(rule).message);
 
-          if(this.unsatisfiedRules.indexOf(rule) === -1) { // benzersiz valid olmayan rule'lar
+          if(this.unsatisfiedRules.indexOf(rule) === -1) {  // benzersiz valid olmayan rule'lar
             this.unsatisfiedRules.push(rule);
           }
         }
       });
     });
-    
+
     if(this.nonValids.length > 0) {
       this.isValid = false;
     }
 
     this.setUniqueMessages();
 
-    this.injectErrors();
+    if(this.inject) {
+      this.injectErrors();
+    }
+
     console.log("nonValids2", this.nonValids);
     // console.log("unsatisfiedRules", this.unsatisfiedRules);
   }
 
-  injectErrors() {
-    let element = {};
-
-    this.nonValids.forEach((nonValid) => {
-      element = nonValid.element;
-      // nonValid.element.insertAdjacentElement("afterend", nonValid.element);
-      if(element.nextElementSibling.classList.contains("validator-error")) {
-        element.nextElementSibling.remove();
-      }
-      element.insertAdjacentHTML("afterend", `<div class="validator-error">${nonValid.errors[0]}</div>`);
-
+  validationOnInput() { // *** iyileştir. validate() metoduna input parametresini ver ***
+    this.inputs.forEach(input => {
+      input.element.addEventListener("input", (e) => {
+        console.log(e.target.value);
+        this.validate();
+      });
     });
+  }
+
+  renderErrorContainers() {
+    let div;
+
+    this.inputs.forEach(input => {
+      div = document.createElement("div");
+      div.className = "validator-error";
+      input.element.insertAdjacentElement("afterend", div)
+    });
+  }
+
+  injectErrors() {
+    this.inputs.forEach(input => input.element.nextElementSibling.innerHTML = (input.errors.length > 0) ? input.errors[0] : "");
   }
 
   mapRules(rule) {
@@ -114,4 +142,4 @@ class Validator {
 
 }
 
-export { Validator }
+export { Validator };
