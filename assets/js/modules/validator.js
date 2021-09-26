@@ -4,6 +4,7 @@ class Validator {
     this.formElements = [...document.querySelector(props.form)];
     this.inject = props.inject ? props.inject : false;
     this.onInput = props.onInput ? props.onInput : false;
+    this.handleError = props.handleError ? props.handleError : () => {};
 
     this.inputs = []; // Form içindeki data-rules'u belirtilmiş elemtler ve rule'ları
 
@@ -19,7 +20,7 @@ class Validator {
       this.renderErrorContainers();
     }
     if(this.onInput) {
-      this.validationOnInput();
+      this.validateOnInput();
     }
 
   }
@@ -78,6 +79,7 @@ class Validator {
 
     if(this.nonValids.length > 0) {
       this.isValid = false;
+      this.handleError();
     }
 
     this.setUniqueMessages();
@@ -90,7 +92,7 @@ class Validator {
     // console.log("unsatisfiedRules", this.unsatisfiedRules);
   }
 
-  validationOnInput() { // *** iyileştir. validate() metoduna input parametresini ver ***
+  validateOnInput() { // *** iyileştir. validate() metoduna input parametresini ver ***
     this.inputs.forEach(input => {
       input.element.addEventListener("input", (e) => {
         console.log(e.target.value);
