@@ -6,6 +6,8 @@ class Validator {
     this.onInput = props.onInput ? props.onInput : false;
     this.handleError = props.handleError ? props.handleError : () => {};
 
+    this.customMessages = props.customMessages ? props.customMessages : null;
+
     this.inputs = []; // Form içindeki data-rules'u belirtilmiş elemtler ve rule'ları
 
     this.isValid = true;
@@ -30,8 +32,8 @@ class Validator {
     this.formElements.forEach((formItem, index) => {
       if(formItem.dataset.rules) {
         this.inputs.push({
-          inputId: index,
           element: formItem,
+          name: formItem.name,
           rules: formItem.dataset.rules.split("|"),
           errors: [],
         });
@@ -112,10 +114,22 @@ class Validator {
   }
 
   injectErrors() {
-    this.inputs.forEach(input => input.element.nextElementSibling.innerHTML = (input.errors.length > 0) ? input.errors[0] : "");
+    // this.inputs.forEach(input => input.element.nextElementSibling.innerHTML = (input.errors.length > 0) ? input.errors[0] : "");
+    this.inputs.forEach(input => {
+      if(input.errors.length > 0) {
+        if(this.customMessages) {
+
+        } else {
+          input.element.nextElementSibling.innerHTML = (input.errors.length > 0) ? input.errors[0] : ""
+        }
+      } else {
+        input.element.nextElementSibling.innerHTML = ""
+      }
+    });
   }
 
   mapRules(rule) {
+    // metdolar true döndürmeli (valid olan durumu)
     const rules = {
       required: {
         method: (element) => element.value !== "",
@@ -124,6 +138,10 @@ class Validator {
       minlen: {
         method: (element) => element.value.length >= parseInt(this.ruleParam),
         message: `En az ${this.ruleParam} karakter girmelisiniz.`
+      },
+      selected: {
+        method: (element) => element.value != this.ruleParam,
+        message: "Lütfen bir seçim yapın."
       }
     }
     return rules[rule];
