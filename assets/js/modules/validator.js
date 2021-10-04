@@ -4,9 +4,7 @@ class Validator {
     this.formElements = [...document.querySelector(props.form)];
     this.inject = props.inject ? props.inject : false;
     this.onInput = props.onInput ? props.onInput : false;
-    this.handleError = props.handleError ? props.handleError : () => {};
-
-    this.customMessages = props.customMessages ? props.customMessages : null;
+    this.handleError = props.handleError ? props.handleError : () => { };
 
     this.inputs = []; // Form içindeki data-rules'u belirtilmiş elemtler ve rule'ları
 
@@ -18,10 +16,10 @@ class Validator {
 
     this.setInputs();
 
-    if(this.inject) {
+    if (this.inject) {
       this.renderErrorContainers();
     }
-    if(this.onInput) {
+    if (this.onInput) {
       this.validateOnInput();
     }
 
@@ -30,7 +28,7 @@ class Validator {
   // Form içindeki data-rules'u belirtilmiş elementleri alır
   setInputs() {
     this.formElements.forEach((formItem, index) => {
-      if(formItem.dataset.rules) {
+      if (formItem.dataset.rules) {
         this.inputs.push({
           element: formItem,
           name: formItem.name,
@@ -49,7 +47,6 @@ class Validator {
     this.unsatisfiedRules = [];
     console.log("this.inputs", this.inputs);
 
-
     this.inputs.forEach((input) => { // INP
       input.errors = [];
       element = input.element;
@@ -57,36 +54,36 @@ class Validator {
 
       rules.forEach((rule) => {  // RULE
 
-        if(rule.includes("[")) {  // eğer rule parametresi varsa (rule[param])
+        if (rule.includes("[")) {  // eğer rule parametresi varsa (rule[param])
           this.ruleParam = this.parseRuleParams(rule);
           rule = rule.slice(0, rule.indexOf("["));
         }
 
-        if(!this.mapRules(rule).method(element)) {  // valid değilse
+        if (!this.mapRules(rule).method(element)) {  // valid değilse
 
-          if(input.errors.indexOf(this.mapRules(rule).message) === -1) {
+          if (input.errors.indexOf(this.mapRules(rule).message) === -1) {
             input.errors.push(this.mapRules(rule).message);
           }
 
-          if(this.nonValids.indexOf(input) === -1) {
+          if (this.nonValids.indexOf(input) === -1) {
             this.nonValids.push(input);
           }
 
-          if(this.unsatisfiedRules.indexOf(rule) === -1) {  // benzersiz valid olmayan rule'lar
+          if (this.unsatisfiedRules.indexOf(rule) === -1) {  // benzersiz valid olmayan rule'lar
             this.unsatisfiedRules.push(rule);
           }
         }
       });
     });
 
-    if(this.nonValids.length > 0) {
+    if (this.nonValids.length > 0) {
       this.isValid = false;
       this.handleError();
     }
 
     this.setUniqueMessages();
 
-    if(this.inject) {
+    if (this.inject) {
       this.injectErrors();
     }
 
@@ -96,9 +93,54 @@ class Validator {
 
   validateOnInput() { // *** iyileştir. validate() metoduna input parametresini ver ***
     this.inputs.forEach(input => {
+
       input.element.addEventListener("input", (e) => {
         console.log(e.target.value);
-        this.validate();
+        // this.validate();
+        let element = {};
+        let rules = [];
+        this.nonValids = [];
+        this.unsatisfiedRules = [];
+
+        // this.inputs.forEach((input) => { // INP
+          input.errors = [];
+          element = input.element;
+          rules = input.rules;
+
+          rules.forEach((rule) => {  // RULE
+
+            if (rule.includes("[")) {  // eğer rule parametresi varsa (rule[param])
+              this.ruleParam = this.parseRuleParams(rule);
+              rule = rule.slice(0, rule.indexOf("["));
+            }
+
+            if (!this.mapRules(rule).method(element)) {  // valid değilse
+
+              if (input.errors.indexOf(this.mapRules(rule).message) === -1) {
+                input.errors.push(this.mapRules(rule).message);
+              }
+
+              if (this.nonValids.indexOf(input) === -1) {
+                this.nonValids.push(input);
+              }
+
+              if (this.unsatisfiedRules.indexOf(rule) === -1) {  // benzersiz valid olmayan rule'lar
+                this.unsatisfiedRules.push(rule);
+              }
+            }
+          });
+        // });
+
+        if (this.nonValids.length > 0) {
+          this.isValid = false;
+          this.handleError();
+        }
+
+        this.setUniqueMessages();
+
+        if (this.inject) {
+          this.injectErrors();
+        }
       });
     });
   }
@@ -114,18 +156,7 @@ class Validator {
   }
 
   injectErrors() {
-    // this.inputs.forEach(input => input.element.nextElementSibling.innerHTML = (input.errors.length > 0) ? input.errors[0] : "");
-    this.inputs.forEach(input => {
-      if(input.errors.length > 0) {
-        if(this.customMessages) {
-
-        } else {
-          input.element.nextElementSibling.innerHTML = (input.errors.length > 0) ? input.errors[0] : ""
-        }
-      } else {
-        input.element.nextElementSibling.innerHTML = ""
-      }
-    });
+    this.inputs.forEach(input => input.element.nextElementSibling.innerHTML = (input.errors.length > 0) ? input.errors[0] : "");
   }
 
   mapRules(rule) {
