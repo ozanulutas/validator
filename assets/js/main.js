@@ -10,10 +10,10 @@ const validator = new Validator({
   // handleError: () => {console.log("notvalid")}, // opsiyonel
 });
 
+
 form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   // validator.validate();
   console.log(validator.isValid());
-
 });
