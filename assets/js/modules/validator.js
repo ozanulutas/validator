@@ -41,6 +41,19 @@ class Validator {
   }
 
   isValid() {
+    this.validateAll();
+
+    if (this.nonValids.length > 0) {
+      this.handleError();
+      this.isFormValid = false;
+    } else {
+      this.isFormValid = true;
+    }
+
+    return this.isFormValid;
+  }
+
+  validateAll() {
     this.nonValids = [];  ///
     this.unsatisfiedRules = []; ///
 
@@ -56,8 +69,10 @@ class Validator {
       });
     });
 
-    console.log("isValid -> this.nonValids", this.nonValids);
-    console.log("isValid -> this.inputs", this.inputs);
+    this.setUniqueMessages();
+
+    console.log("validateAll -> this.nonValids", this.nonValids);
+    console.log("validateAll -> this.inputs", this.inputs);
   }
 
   validate(inp, callback) {
@@ -83,23 +98,16 @@ class Validator {
 
         if (callback) {
           callback(inp, rule);
-          // if (this.nonValids.indexOf(inp) === -1) {
-          //   this.nonValids.push(inp);
-          // }
-  
-          // if (this.unsatisfiedRules.indexOf(rule) === -1) {  // benzersiz valid olmayan rule'lar
-          //   this.unsatisfiedRules.push(rule);
-          // }
         }
       }
     });
 
-    if (this.nonValids.length > 0) {
-      this.isFormValid = false;
-      this.handleError();
-    }
+    // if (this.nonValids.length > 0) {
+    //   this.handleError();
+    //   this.isFormValid = false;
+    // }
 
-    this.setUniqueMessages();
+    // this.setUniqueMessages();
 
     if (this.inject) {
       this.injectErrors();

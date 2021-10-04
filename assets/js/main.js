@@ -14,6 +14,6 @@ form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   // validator.validate();
-  validator.isValid();
+  console.log(validator.isValid());
 
 });
