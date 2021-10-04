@@ -1,10 +1,14 @@
 class Validator {
 
   constructor(props) {
-    this.formElements = [...document.querySelector(props.form)];
-    this.inject = props.inject ? props.inject : false;
-    this.onInput = props.onInput ? props.onInput : false;
-    this.handleError = props.handleError ? props.handleError : () => { };
+    // this.formElements = [...document.querySelector(props.form)];
+    // this.inject = props.inject ? props.inject : false;
+    // this.onInput = props.onInput ? props.onInput : false;
+    // this.handleError = props.handleError ? props.handleError : () => { };
+    this.formElements = [];
+    this.inject = false;
+    this.onInput = false;
+    this.handleError = () => { };
 
     this.inputs = []; // Form içindeki data-rules'u belirtilmiş elemtler ve rule'ları
 
@@ -14,6 +18,29 @@ class Validator {
     this.unsatisfiedRules = []; // benzersiz valid olmayan rule'lar
     this.messages = [];
 
+    // this.setInputs();
+
+    // if (this.inject) {
+    //   this.renderErrorContainers();
+    // }
+    // if (this.onInput) {
+    //   this.validateOnInput();
+    // }
+    if(props) {
+      this.init(props);
+    }
+  }
+
+  setProps(props) {
+    this.formElements = [...document.querySelector(props.form)];
+    this.inject = props.inject ? props.inject : false;
+    this.onInput = props.onInput ? props.onInput : false;
+    this.handleError = props.handleError ? props.handleError : () => { };
+  }
+
+  init(props) {
+    this.setProps(props);
+
     this.setInputs();
 
     if (this.inject) {
@@ -22,7 +49,6 @@ class Validator {
     if (this.onInput) {
       this.validateOnInput();
     }
-
   }
 
   // Form içindeki data-rules'u belirtilmiş elementleri alır
@@ -54,8 +80,8 @@ class Validator {
   }
 
   validateAll() {
-    this.nonValids = [];  ///
-    this.unsatisfiedRules = []; ///
+    this.nonValids = [];
+    this.unsatisfiedRules = [];
 
     this.inputs.forEach((input) => {
       this.validate(input, (inp, rule) => {
@@ -173,5 +199,12 @@ class Validator {
   }
 
 }
+
+// new Validator({
+//   form: ".js-form",
+//   inject: true, // opsiyonel
+//   onInput: true, // opsiyonel
+//   // handleError: () => {console.log("notvalid")}, // opsiyonel
+// });
 
 export { Validator };
