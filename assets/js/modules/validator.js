@@ -8,7 +8,7 @@ class Validator {
 
     this.inputs = []; // Form içindeki data-rules'u belirtilmiş elemtler ve rule'ları
 
-    this.isValid = true;
+    this.isFormValid = true;
     this.ruleParam = null; // elementin data-rule'undaki rule parametresi (rule[param])
     this.nonValids = []; // valid olmayan elementler
     this.unsatisfiedRules = []; // benzersiz valid olmayan rule'lar
@@ -40,44 +40,62 @@ class Validator {
     // console.log("setInputs()", this.inputs);
   }
 
-  validate() {
-    let element = {};
-    let rules = [];
-    this.nonValids = [];
-    this.unsatisfiedRules = [];
-    console.log("this.inputs", this.inputs);
+  isValid() {
+    this.nonValids = [];  ///
+    this.unsatisfiedRules = []; ///
 
-    this.inputs.forEach((input) => { // INP
-      input.errors = [];
-      element = input.element;
-      rules = input.rules;
-
-      rules.forEach((rule) => {  // RULE
-
-        if (rule.includes("[")) {  // eğer rule parametresi varsa (rule[param])
-          this.ruleParam = this.parseRuleParams(rule);
-          rule = rule.slice(0, rule.indexOf("["));
+    this.inputs.forEach((input) => {
+      this.validate(input, (inp, rule) => {
+        if (this.nonValids.indexOf(inp) === -1) {
+          this.nonValids.push(inp);
         }
 
-        if (!this.mapRules(rule).method(element)) {  // valid değilse
-
-          if (input.errors.indexOf(this.mapRules(rule).message) === -1) {
-            input.errors.push(this.mapRules(rule).message);
-          }
-
-          if (this.nonValids.indexOf(input) === -1) {
-            this.nonValids.push(input);
-          }
-
-          if (this.unsatisfiedRules.indexOf(rule) === -1) {  // benzersiz valid olmayan rule'lar
-            this.unsatisfiedRules.push(rule);
-          }
+        if (this.unsatisfiedRules.indexOf(rule) === -1) {  // benzersiz valid olmayan rule'lar
+          this.unsatisfiedRules.push(rule);
         }
       });
     });
 
+    console.log("isValid -> this.nonValids", this.nonValids);
+    console.log("isValid -> this.inputs", this.inputs);
+  }
+
+  validate(inp, callback) {
+    let element = {};
+    let rules = [];
+
+    inp.errors = [];
+    element = inp.element;
+    rules = inp.rules;
+
+    rules.forEach((rule) => {  // RULE
+
+      if (rule.includes("[")) {  // eğer rule parametresi varsa (rule[param])
+        this.ruleParam = this.parseRuleParams(rule);
+        rule = rule.slice(0, rule.indexOf("["));
+      }
+
+      if (!this.mapRules(rule).method(element)) {  // valid değilse
+
+        if (inp.errors.indexOf(this.mapRules(rule).message) === -1) {
+          inp.errors.push(this.mapRules(rule).message);
+        }
+
+        if (callback) {
+          callback(inp, rule);
+          // if (this.nonValids.indexOf(inp) === -1) {
+          //   this.nonValids.push(inp);
+          // }
+  
+          // if (this.unsatisfiedRules.indexOf(rule) === -1) {  // benzersiz valid olmayan rule'lar
+          //   this.unsatisfiedRules.push(rule);
+          // }
+        }
+      }
+    });
+
     if (this.nonValids.length > 0) {
-      this.isValid = false;
+      this.isFormValid = false;
       this.handleError();
     }
 
@@ -86,61 +104,16 @@ class Validator {
     if (this.inject) {
       this.injectErrors();
     }
-
-    console.log("nonValids2", this.nonValids);
-    // console.log("unsatisfiedRules", this.unsatisfiedRules);
   }
 
-  validateOnInput() { // *** iyileştir. validate() metoduna input parametresini ver ***
+  validateOnInput() {
     this.inputs.forEach(input => {
-
       input.element.addEventListener("input", (e) => {
-        console.log(e.target.value);
-        // this.validate();
-        let element = {};
-        let rules = [];
-        this.nonValids = [];
-        this.unsatisfiedRules = [];
+        // console.log(e.target.value);
+        this.validate(input);
 
-        // this.inputs.forEach((input) => { // INP
-          input.errors = [];
-          element = input.element;
-          rules = input.rules;
-
-          rules.forEach((rule) => {  // RULE
-
-            if (rule.includes("[")) {  // eğer rule parametresi varsa (rule[param])
-              this.ruleParam = this.parseRuleParams(rule);
-              rule = rule.slice(0, rule.indexOf("["));
-            }
-
-            if (!this.mapRules(rule).method(element)) {  // valid değilse
-
-              if (input.errors.indexOf(this.mapRules(rule).message) === -1) {
-                input.errors.push(this.mapRules(rule).message);
-              }
-
-              if (this.nonValids.indexOf(input) === -1) {
-                this.nonValids.push(input);
-              }
-
-              if (this.unsatisfiedRules.indexOf(rule) === -1) {  // benzersiz valid olmayan rule'lar
-                this.unsatisfiedRules.push(rule);
-              }
-            }
-          });
-        // });
-
-        if (this.nonValids.length > 0) {
-          this.isValid = false;
-          this.handleError();
-        }
-
-        this.setUniqueMessages();
-
-        if (this.inject) {
-          this.injectErrors();
-        }
+        console.log("validateOnInput -> this.nonValids", this.nonValids);
+        console.log("validateOnInput -> this.inputs", this.inputs);
       });
     });
   }
