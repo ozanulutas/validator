@@ -19,7 +19,7 @@ export default class {
         message: () => "Bu alanı doldurun."
       },
       minlen: {
-        method: (element) => {element.value.length >= parseInt(this.ruleParam); console.log(this.ruleParam);},
+        method: (element) => element.value.length >= parseInt(this.ruleParam),
         message: () => `En az ${this.ruleParam} karakter girmelisiniz.`
       },
       selected: {
