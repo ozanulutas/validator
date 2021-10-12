@@ -164,6 +164,10 @@ class Validator {
     this.inputs.forEach(input => input.element.nextElementSibling.innerHTML = (input.errors.length > 0) ? input.errors[0] : "");
   }
 
+  addRule(ruleName, rule) {
+    this.validatonRules.addRule(ruleName, rule);
+  }
+
   // mapRules(rule) {
   //   // metdolar true döndürmeli (valid olan durumu)
   //   const rules = {

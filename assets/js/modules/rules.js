@@ -2,7 +2,7 @@ export default class {
   constructor() {
     this.rules = {};
     this.ruleParam = null;
-    this.setRules();
+    this.initRules();
   }
 
   set ruleParam(param) {
@@ -12,7 +12,14 @@ export default class {
     return this._ruleParam;
   }
 
-  setRules() {
+  // set rules({ruleName, rule}) {
+  //   this._rules[ruleName] = rule;
+  // }
+  addRule(ruleName, rule) {
+    this.rules[ruleName] = rule;
+  }
+
+  initRules() {
     this.rules = {
       required: {
         method: (element) => element.value !== "",
