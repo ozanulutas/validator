@@ -1,3 +1,5 @@
+import ValidatonRules from "./rules.js";
+
 class Validator {
 
   constructor(props) {
@@ -16,6 +18,7 @@ class Validator {
     this.messages = [];
 
     this.customMessages = {};
+    this.validatonRules = new ValidatonRules();
 
     if(props) {
       this.init(props);
@@ -89,7 +92,7 @@ class Validator {
       });
     });
 
-    this.setUniqueMessages();
+    // this.setUniqueMessages();
 
     // console.log("validateAll -> this.nonValids", this.nonValids);
     // console.log("validateAll -> this.inputs", this.inputs);
@@ -108,15 +111,18 @@ class Validator {
 
       if (rule.includes("[")) {  // eğer rule parametresi varsa (rule[param])
         this.ruleParam = this.parseRuleParams(rule);
+        this.validatonRules.ruleParam = this.ruleParam;
         rule = rule.slice(0, rule.indexOf("["));
       }
 
-      if (!this.mapRules(rule).method(element)) {  // valid değilse
+      if (!this.validatonRules.rules[rule].method(element)) {  // valid değilse
+      // if (!validatonRules[rule].method(element, this.ruleParam)) {  // valid değilse
+      // if (!this.mapRules(rule).method(element)) {  // valid değilse
 
-        if (inp.errors.indexOf(this.mapRules(rule).message) === -1) {
+        if (inp.errors.indexOf(this.validatonRules.rules[rule].message()) === -1) {
           errorMessage = (this.customMessages.hasOwnProperty(inp.name) && this.customMessages[inp.name][rule]) 
             ? this.customMessages[inp.name][rule] 
-            : this.mapRules(rule).message;
+            : this.validatonRules.rules[rule].message();
 
           inp.errors.push(errorMessage);
         }
@@ -125,6 +131,8 @@ class Validator {
           callback(inp, rule);
         }
       }
+
+      this.ruleParam = null;
     });
 
     if (this.inject) {
@@ -156,36 +164,36 @@ class Validator {
     this.inputs.forEach(input => input.element.nextElementSibling.innerHTML = (input.errors.length > 0) ? input.errors[0] : "");
   }
 
-  mapRules(rule) {
-    // metdolar true döndürmeli (valid olan durumu)
-    const rules = {
-      required: {
-        method: (element) => element.value !== "",
-        message: "Bu alanı doldurun."
-      },
-      minlen: {
-        method: (element) => element.value.length >= parseInt(this.ruleParam),
-        message: `En az ${this.ruleParam} karakter girmelisiniz.`
-      },
-      selected: {
-        method: (element) => element.value != this.ruleParam,
-        message: "Bir seçim yapın."
-      },
-      matches: {
-        method: (element) => element.value == this.form[this.ruleParam].value,
-        message: "Değerler eşleşmiyor."
-      },
-      phone: {
-        method: (element) => (element.value[0] == 5 && element.value.length === 10),
-        message: "Geçerli bir telefon numarası girin."
-      },
-      email: {
-        method: (element) => (/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(element.value) || element.value === ""),
-        message: "Geçerli bir e-mail adresi girin."
-      },
-    }
-    return rules[rule];
-  }
+  // mapRules(rule) {
+  //   // metdolar true döndürmeli (valid olan durumu)
+  //   const rules = {
+  //     required: {
+  //       method: (element) => element.value !== "",
+  //       message: "Bu alanı doldurun."
+  //     },
+  //     minlen: {
+  //       method: (element) => element.value.length >= parseInt(this.ruleParam),
+  //       message: `En az ${this.ruleParam} karakter girmelisiniz.`
+  //     },
+  //     selected: {
+  //       method: (element) => element.value != this.ruleParam,
+  //       message: "Bir seçim yapın."
+  //     },
+  //     matches: {
+  //       method: (element) => element.value == this.form[this.ruleParam].value,
+  //       message: "Değerler eşleşmiyor."
+  //     },
+  //     phone: {
+  //       method: (element) => (element.value[0] == 5 && element.value.length === 10),
+  //       message: "Geçerli bir telefon numarası girin."
+  //     },
+  //     email: {
+  //       method: (element) => (/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(element.value) || element.value === ""),
+  //       message: "Geçerli bir e-mail adresi girin."
+  //     },
+  //   }
+  //   return rules[rule];
+  // }
 
   // Benzersiz hata mesajlarını set eder
   setUniqueMessages() {
