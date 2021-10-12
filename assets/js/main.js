@@ -19,5 +19,5 @@ const validator = new Validator({
 form.addEventListener("submit", (e) => {
   e.preventDefault();
 
-  validator.validate();
+  validator.isValid();
 });
