@@ -15,7 +15,7 @@ class Validator {
     this.unsatisfiedRules = []; // benzersiz valid olmayan rule'lar
     this.messages = [];
 
-    // this.customMessages = {};
+    this.customMessages = {};
 
     if(props) {
       this.init(props);
@@ -28,8 +28,8 @@ class Validator {
     this.inject = props.inject ? props.inject : false;
     this.onInput = props.onInput ? props.onInput : false;
     this.handleError = props.handleError ? props.handleError : () => { };
-
-    // this.customMessages = props.customMessages ? props.customMessages : {};
+    
+    this.customMessages = props.customMessages ? props.customMessages : {};
   }
 
   init(props) {
@@ -98,6 +98,7 @@ class Validator {
   validate(inp, callback) {
     let element = {};
     let rules = [];
+    let errorMessage = "";
 
     inp.errors = [];
     element = inp.element;
@@ -113,7 +114,11 @@ class Validator {
       if (!this.mapRules(rule).method(element)) {  // valid değilse
 
         if (inp.errors.indexOf(this.mapRules(rule).message) === -1) {
-          inp.errors.push(this.mapRules(rule).message);
+          errorMessage = (this.customMessages.hasOwnProperty(inp.name) && this.customMessages[inp.name][rule]) 
+            ? this.customMessages[inp.name][rule] 
+            : this.mapRules(rule).message;
+
+          inp.errors.push(errorMessage);
         }
 
         if (callback) {

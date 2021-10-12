@@ -9,8 +9,12 @@ const validator = new Validator({
   onInput: true, // opsiyonel
   handleError: () => {console.log("notvalid")}, // opsiyonel
   customMessages: { // opsiyonel
-    name: {
-      required: "Doldur işte beya"
+    // name: {
+    //   required: "Doldur işte beya"
+    // },
+    phone: {
+      minlen: "asdasd",
+      // required: "Doldur işte beyazzzz",
     }
   },
 
